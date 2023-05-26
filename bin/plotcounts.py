@@ -15,9 +15,10 @@ def main(args):
                                             method='max')
     df['inverse_rank'] = 1 / df['rank']
     scatplot = df.plot.scatter(x='word_frequency',
-                                y='inverse_rank',
-                                figsize=[args.xlim, args.ylim],
-                                grid=True)
+                                y='rank',
+                                figsize=[12, 6],
+                                grid=True,
+                                xlim=args.xlim)
     fig = scatplot.get_figure()
     fig.savefig(args.outfile)
 
