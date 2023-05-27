@@ -22,4 +22,3 @@ if __name__ == '__main__':
                        help='File suffix (e.g. py, sh)')
     args=paser.parse_args()
     main(args)
-    
