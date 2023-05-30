@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 """
 Count the occurrences of all words in a text
 and write them to a CSV-file.

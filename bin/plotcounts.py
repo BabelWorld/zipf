@@ -2,8 +2,10 @@
 
 import argparse
 
+import yaml
 import numpy as np
 import pandas as pd
+import matplotlib as mpl
 from scipy.optimize import minimize_scalar
 
 
@@ -13,7 +15,7 @@ def nlog_likelihood(beta, counts):
                           - (1/(counts + 1))**(beta - 1)))
     return likelihood
 
-
+'''
 def get_power_law_params(word_counts):
     """
     Get the power law parameters.
@@ -36,6 +38,49 @@ def get_power_law_params(word_counts):
     beta = mle.x
     alpha = 1 / (beta - 1)
     return alpha
+'''
+
+def get_power_law_params(word_counts):
+    """
+    Get the power law parameters.
+
+    References
+    ----------
+    Moreno-Sanchez et al (2016) define alpha (Eq. 1),
+      beta (Eq. 2) and the maximum likelihood estimation (mle)
+      of beta (Eq. 6).
+
+    Moreno-Sanchez I, Font-Clos F, Corral A (2016)
+      Large-Scale Analysis of Zipf's Law in English Texts.
+      PLoS ONE 11(1): e0147073.
+      https://doi.org/10.1371/journal.pone.0147073
+    """
+    assert type(word_counts) == np.ndarray, \
+        'Input must be a numerical (numpy) array of word counts'
+    mle = minimize_scalar(nlog_likelihood,
+                          bracket=(1 + 1e-10, 4),
+                          args=word_counts,
+                          method='brent')
+    beta = mle.x
+    alpha = 1 / (beta - 1)
+    return alpha
+
+
+def set_plot_params(param_file):
+    """Set the matplotlib parameters."""
+    if param_file:
+        with open(param_file, 'r') as reader:
+            param_dict = yaml.load(reader,
+                                   Loader=yaml.BaseLoader)
+    else:
+        param_dict = {}
+    for param, value in param_dict.items():
+        mpl.rcParams[param] = value
+
+def out_plot_params(filename):
+    with open(filename,'w') as f:
+        for key in mpl.rcParams:
+            f.write(key+" : "+str(mpl.rcParams[key])+'\n')
 
 
 def plot_fit(curve_xmin, curve_xmax, max_rank, alpha, ax):
@@ -62,6 +107,8 @@ def plot_fit(curve_xmin, curve_xmax, max_rank, alpha, ax):
 
 def main(args):
     """Run the command line program."""
+    set_plot_params(args.plotparams)
+    out_plot_params(args.saveconfig)
     df = pd.read_csv(args.infile, header=None,
                      names=('word', 'word_frequency'))
     df['rank'] = df['word_frequency'].rank(ascending=False,
@@ -100,5 +147,9 @@ if __name__ == '__main__':
     parser.add_argument('--xlim', type=float, nargs=2,
                         metavar=('XMIN', 'XMAX'),
                         default=None, help='X-axis limits')
+    parser.add_argument('--plotparams', type=str, default=None,
+                        help='matplotlib parameters (YAML file)')
+    parser.add_argument('--saveconfig', type=str, default=None,
+                        help='save config')
     args = parser.parse_args()
     main(args)

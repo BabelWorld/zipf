@@ -12,8 +12,9 @@ import utilities as util
 
 def update_counts(reader, word_counts):
     """Update word counts with data from another reader/file."""
-    for word, count in csv.reader(reader):
-        word_counts[word] += int(count)
+    for row in csv.reader(reader):
+        if len(row)!=0:
+            word_counts[row[0]] += int(row[1])
 
 
 def main(args):
