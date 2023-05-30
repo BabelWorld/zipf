@@ -15,30 +15,6 @@ def nlog_likelihood(beta, counts):
                           - (1/(counts + 1))**(beta - 1)))
     return likelihood
 
-'''
-def get_power_law_params(word_counts):
-    """
-    Get the power law parameters.
-
-    References
-    ----------
-    Moreno-Sanchez et al (2016) define alpha (Eq. 1),
-      beta (Eq. 2) and the maximum likelihood estimation (mle)
-      of beta (Eq. 6).
-
-    Moreno-Sanchez I, Font-Clos F, Corral A (2016)
-      Large-Scale Analysis of Zipf's Law in English Texts.
-      PLoS ONE 11(1): e0147073.
-      https://doi.org/10.1371/journal.pone.0147073
-    """
-    mle = minimize_scalar(nlog_likelihood,
-                          bracket=(1 + 1e-10, 4),
-                          args=word_counts,
-                          method='brent')
-    beta = mle.x
-    alpha = 1 / (beta - 1)
-    return alpha
-'''
 
 def get_power_law_params(word_counts):
     """
@@ -76,6 +52,7 @@ def set_plot_params(param_file):
         param_dict = {}
     for param, value in param_dict.items():
         mpl.rcParams[param] = value
+
 
 def out_plot_params(filename):
     with open(filename,'w') as f:
